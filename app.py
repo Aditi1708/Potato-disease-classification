@@ -2,16 +2,12 @@ import streamlit as st
 import numpy as np
 from PIL import Image
 from tensorflow.keras.models import load_model
-from tensorflow.keras.preprocessing import image
-from tensorflow.keras.layers import InputLayer
 
 # Load the trained model
 @st.cache(allow_output_mutation=True)
 def load_trained_model():
     try:
-        # Define a custom object dictionary to handle custom layers
-        custom_objects = {'InputLayer': InputLayer}
-        model = load_model('potatoes.h5', custom_objects=custom_objects)
+        model = load_model('potatoes.h5')
         return model, None
     except Exception as e:
         return None, str(e)
@@ -25,9 +21,10 @@ if model is None:
 # Function to preprocess the image
 def preprocess_image(image_file):
     try:
-        img = image.load_img(image_file, target_size=(175, 175))
-        img_array = image.img_to_array(img)
-        img_array = np.expand_dims(img_array, axis=0)
+        img = Image.open(image_file)
+        img = img.resize((175, 175))  # Resize image to match input size of the model
+        img_array = np.array(img) / 255.0   # Normalize pixel values
+        img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
         return img_array, None
     except Exception as e:
         return None, str(e)
