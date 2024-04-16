@@ -2,41 +2,22 @@ import streamlit as st
 import numpy as np
 from PIL import Image
 from tensorflow.keras.models import load_model
-
-# Load the trained model
-@st.cache(allow_output_mutation=True)
-def load_trained_model():
-    try:
-        model = load_model('potatoes.h5')
-        return model, None
-    except Exception as e:
-        return None, str(e)
-
-model, load_error = load_trained_model()
-
-if model is None:
-    st.error(f"Failed to load the model. Error: {load_error}")
-    st.stop()
+from tensorflow.keras.preprocessing import image
+import os
+import requests
 
 # Function to preprocess the image
 def preprocess_image(image_file):
-    try:
-        img = Image.open(image_file)
-        img = img.resize((175, 175))  # Resize image to match input size of the model
-        img_array = np.array(img) / 255.0   # Normalize pixel values
-        img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
-        return img_array, None
-    except Exception as e:
-        return None, str(e)
+    img = image.load_img(image_file, target_size=(224, 224))
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    return img_array
 
 # Function to make predictions
-def predict_disease(image):
-    processed_image, preprocess_error = preprocess_image(image)
-    if processed_image is not None:
-        prediction = model.predict(processed_image)
-        return prediction, None
-    else:
-        return None, preprocess_error
+def predict_disease(model, image_file):
+    processed_image = preprocess_image(image_file)
+    prediction = model.predict(processed_image)
+    return prediction
 
 # Streamlit app
 def main():
@@ -44,23 +25,41 @@ def main():
     st.write("Upload an image of a potato leaf to classify its disease.")
     
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    
+    # Download the model file from GitHub
+    github_model_url = "https://raw.githubusercontent.com/shubhamsharma1795/repository/main/potatoes.h5"
+    local_model_path = "potatoes.h5"
+
+    response = requests.get(github_model_url)
+    with open(local_model_path, "wb") as f:
+        f.write(response.content)
+    
+    # Load the model
+    try:
+        model = load_model(local_model_path)
+        st.write("Model loaded successfully.")
+    except FileNotFoundError:
+        st.error("Model file not found. Please check the file path.")
+        st.stop()
+    except Exception as e:
+        st.error(f"Error loading model: {e}")
+        st.stop()
+    
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         st.image(image, caption='Uploaded Image', use_column_width=True)
         st.write("")
         if st.button('Classify'):
             st.write("Classifying...")
-            try:
-                prediction, predict_error = predict_disease(uploaded_file)
-                if prediction is not None:
-                    classes = ['Early Blight', 'Late Blight', 'Healthy']
-                    predicted_class = classes[np.argmax(prediction)]
-                    st.write(f"Prediction: {predicted_class}")
-                else:
-                    st.error(f"Failed to classify the image. Error: {predict_error}")
-            except Exception as e:
-                st.error("An error occurred during prediction.")
-                st.error(str(e))
+            prediction = predict_disease(model, uploaded_file)
+            st.write("Prediction:", prediction)
+            disease_class = np.argmax(prediction)
+            if disease_class == 0:
+                st.write("Prediction: Early Blight")
+            elif disease_class == 1:
+                st.write("Prediction: Late Blight")
+            else:
+                st.write("Prediction: Healthy Potato Leaf")
 
-if __name__ == '__main__':
+if name == 'main':
     main()
