@@ -49,11 +49,18 @@ def main():
     # Custom CSS to style the page
     st.markdown(f"""
         <style>
-        .stApp {{
+        .background {{
             background-image: url('https://drive.google.com/uc?export=view&id=1tmYEmSTwAdkf2qaG5FW6D34lx4J-l59C');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            filter: blur(8px);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
         }}
         .big-font {{
             font-size:30px !important;
@@ -81,6 +88,9 @@ def main():
                     st.write("Prediction: Late Blight")
                 else:
                     st.write("Prediction: Healthy Potato Leaf")
+
+    # Adding a background container
+    st.markdown('<div class="background"></div>', unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
