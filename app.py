@@ -73,5 +73,5 @@ def main():
                 else:
                     st.write("Prediction: Healthy Potato Leaf")
 
-if name == 'main':
+if __name__ == '__main__':
     main()
