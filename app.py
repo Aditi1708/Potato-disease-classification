@@ -4,10 +4,8 @@ from PIL import Image
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing import image
 import requests
-from io import BytesIO
 import os
 
-# Function to download the model file if not present
 def download_model(url, output_path):
     if not os.path.exists(output_path):
         with st.spinner('Downloading model... Please wait...'):
@@ -22,13 +20,10 @@ def download_model(url, output_path):
                 return False
     return True
 
-# Set the path and URL for the model
 model_path = 'potatoes.h5'
 model_url = 'https://drive.google.com/uc?export=download&id=1OvyHsGPReRkt-krG207BvgXynjiXGR9Y'
 
-# Ensure model is downloaded
 if download_model(model_url, model_path):
-    # Load the trained model
     try:
         model = load_model(model_path)
         st.write("Model loaded successfully.")
@@ -38,7 +33,6 @@ if download_model(model_url, model_path):
 else:
     st.stop()
 
-# Function to preprocess the image
 def preprocess_image(image_file):
     img = Image.open(image_file).convert('RGB')
     img = img.resize((224, 224))
@@ -46,49 +40,29 @@ def preprocess_image(image_file):
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
 
-# Function to make predictions
 def predict_disease(image_file):
     processed_image = preprocess_image(image_file)
     prediction = model.predict(processed_image)
     return prediction
 
-# Streamlit app with custom styling
 def main():
     # Custom CSS to style the page
-    st.markdown("""
+    st.markdown(f"""
         <style>
-        /* Background color for the entire page */
-        body {
-            color: #fff;
-            background-color: #f4f4f2;
-        }
-        /* Custom styling for the header */
-        .big-font {
+        .stApp {{
+            background-image: url('https://drive.google.com/uc?export=view&id=1tmYEmSTwAdkf2qaG5FW6D34lx4J-l59C');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }}
+        .big-font {{
             font-size:30px !important;
             color: #FF4B4B;
-        }
-        /* Sidebar styling */
-        .left-sidebar {
-            font-size:20px !important;
-            color: #008080;
-        }
-        /* Adjusting the container width */
-        .container {
-            padding: 50px;
-        }
-        /* Header with the potato symbol */
-        .potato-header {
-            font-family: 'Helvetica', sans-serif;
-            color: #333;
-            font-size: 24px;
-            font-weight: bold;
-        }
+        }}
         </style>
         """, unsafe_allow_html=True)
 
-    # Header with a potato symbol
-    st.markdown('<div class="potato-header">🥔 Potato Diseases Classification</div>', unsafe_allow_html=True)
-
+    st.markdown('<div class="big-font">🥔 Potato Diseases Classification</div>', unsafe_allow_html=True)
     st.write("Upload an image of a potato leaf to classify its disease.")
 
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
