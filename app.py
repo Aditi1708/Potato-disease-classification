@@ -30,8 +30,6 @@ if download_model(model_url, model_path):
     except Exception as e:
         st.error(f"Failed to load model: {e}")
         st.stop()
-else:
-    st.stop()
 
 def preprocess_image(image_file):
     img = Image.open(image_file).convert('RGB')
@@ -46,37 +44,26 @@ def predict_disease(image_file):
     return prediction
 
 def main():
-    # Custom CSS to style the page
-    st.markdown(f"""
+    st.title("Potato Diseases Classification")
+
+    # CSS to inject contained style
+    st.markdown(
+        f"""
         <style>
-        .background {{
-            background-image: url('https://drive.google.com/uc?export=view&id=1tmYEmSTwAdkf2qaG5FW6D34lx4J-l59C');
+        .stApp {{
+            background-image: url("data:image/jpeg;base64,{background_image_base64}");
             background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            filter: blur(8px);
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-        }}
-        .big-font {{
-            font-size:30px !important;
-            color: #FF4B4B;
+            background-blur: 10px;
         }}
         </style>
-        """, unsafe_allow_html=True)
-
-    st.markdown('<div class="big-font">🥔 Potato Diseases Classification</div>', unsafe_allow_html=True)
-    st.write("Upload an image of a potato leaf to classify its disease.")
+        """,
+        unsafe_allow_html=True
+    )
 
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert('RGB')
         st.image(image, caption='Uploaded Image', use_column_width=True)
-        st.write("")
 
         if st.button('Classify'):
             with st.spinner('Classifying...'):
@@ -88,9 +75,6 @@ def main():
                     st.write("Prediction: Late Blight")
                 else:
                     st.write("Prediction: Healthy Potato Leaf")
-
-    # Adding a background container
-    st.markdown('<div class="background"></div>', unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
