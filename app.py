@@ -52,9 +52,43 @@ def predict_disease(image_file):
     prediction = model.predict(processed_image)
     return prediction
 
-# Streamlit app
+# Streamlit app with custom styling
 def main():
-    st.title("Potato Diseases Classification")
+    # Custom CSS to style the page
+    st.markdown("""
+        <style>
+        /* Background color for the entire page */
+        body {
+            color: #fff;
+            background-color: #f4f4f2;
+        }
+        /* Custom styling for the header */
+        .big-font {
+            font-size:30px !important;
+            color: #FF4B4B;
+        }
+        /* Sidebar styling */
+        .left-sidebar {
+            font-size:20px !important;
+            color: #008080;
+        }
+        /* Adjusting the container width */
+        .container {
+            padding: 50px;
+        }
+        /* Header with the potato symbol */
+        .potato-header {
+            font-family: 'Helvetica', sans-serif;
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+    # Header with a potato symbol
+    st.markdown('<div class="potato-header">🥔 Potato Diseases Classification</div>', unsafe_allow_html=True)
+
     st.write("Upload an image of a potato leaf to classify its disease.")
 
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
