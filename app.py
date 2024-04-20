@@ -40,7 +40,8 @@ else:
 
 # Function to preprocess the image
 def preprocess_image(image_file):
-    img = image.load_img(image_file, target_size=(224, 224))
+    img = Image.open(image_file).convert('RGB')
+    img = img.resize((224, 224))
     img_array = image.img_to_array(img)
     img_array = np.expand_dims(img_array, axis=0)
     return img_array
